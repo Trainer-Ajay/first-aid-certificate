@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Humans - First Aid Certificate Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { color: #0B2545; margin-top: 0; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; font-size: 24px; }
+        .setup-section { background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px; border-left: 4px solid #0B2545; }
+        .file-input-wrapper { margin-bottom: 15px; }
+        .instruction-text { font-size: 14px; color: #555; margin-bottom: 15px; line-height: 1.5; }
+        .control-panel { display: flex; align-items: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        .btn { background-color: #0B2545; color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background-color: #134074; }
+        .btn-print { background-color: #D90429; }
+        .btn-print:hover { background-color: #b30322; }
+        .btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .nav-info { font-size: 15px; font-weight: bold; color: #333; }
+        
+        /* Certificate Container Area */
+        .certificate-preview-area { display: flex; justify-content: center; align-items: center; padding: 40px 0; background: #e9ecef; border-radius: 6px; overflow-x: auto; }
+
+        /* EXACT SPECIFICATION CERTIFICATE STYLING */
+        .certificate-frame { width: 800px; height: 560px; padding: 40px; border: 8px double #0B2545; background-color: #ffffff; position: relative; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .inner-accent-border { position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px; border: 2px solid #D90429; pointer-events: none; }
+        .cert-brand { font-size: 28px; font-weight: bold; color: #0B2545; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .cert-tagline { font-size: 11px; color: #666; letter-spacing: 1px; margin-bottom: 25px; }
+        .cert-title { font-size: 36px; font-weight: 800; color: #D90429; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .cert-presentation { font-size: 16px; font-style: italic; color: #555; margin-bottom: 20px; }
+        .cert-name { font-size: 32px; font-weight: bold; color: #0B2545; border-bottom: 2px solid #0B2545; display: inline-block; padding-bottom: 5px; margin-bottom: 25px; font-family: Georgia, serif; min-width: 300px; }
+        .cert-body { font-size: 15px; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto 30px auto; }
+        .cert-highlight { color: #0B2545; font-size: 18px; font-weight: bold; }
+        .cert-subtext { font-size: 13px; color: #666; }
+        .cert-signatures { width: 100%; margin-top: 35px; font-size: 14px; border-collapse: collapse; }
+        .cert-signatures td { width: 45%; text-align: center; color: #333; vertical-align: bottom; }
+        .sig-line { border-top: 1px solid #999; width: 200px; margin: 0 auto; padding-top: 5px; }
+        .sig-space { height: 35px; }
+        .cert-meta { margin-top: 25px; font-size: 11px; color: #999; }
+
+        /* PRINT MEDIA STYLES - Hides controls during standard PDF generation */
+        @media print {
+            body, .container, .certificate-preview-area { background: none; margin: 0; padding: 0; box-shadow: none; }
+            .setup-section, h1 { display: none !important; }
+            .certificate-frame { box-shadow: none; page-break-inside: avoid; position: absolute; top: 0; left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Training Humans — Certificate Automation Panel</h1>
+    
+    <div class="setup-section">
+        <p class="instruction-text">
+            <strong>How to use:</strong> Choose an Excel file with a column header named <code>Name</code>. Use the Next/Previous buttons to step through participants. Click <strong>Print/Save PDF</strong> to save your high-res certificate copy.
+        </p>
+        <div class="file-input-wrapper">
+            <input type="file" id="excelFile" accept=".xlsx, .xls" />
+        </div>
+        
+        <div class="control-panel">
+            <button class="btn" id="btnPrev" disabled>&larr; Previous Participant</button>
+            <span class="nav-info" id="navInfo">No Excel data loaded (Showing Demo Name)</span>
+            <button class="btn" id="btnNext" disabled>Next Participant &rarr;</button>
+            <button class="btn btn-print" id="btnPrint" onclick="window.print()">Print/Save PDF</button>
+        </div>
+    </div>
+
+    <div class="certificate-preview-area">
+        <div class="certificate-frame">
+            <div class="inner-accent-border"></div>
+            <div class="cert-brand">Training Humans</div>
+            <div class="cert-tagline">Building Leaders, Teams & Sustainable Performance</div>
+            
+            <div class="cert-title">Certificate of Completion</div>
+            <div class="cert-presentation">This is proudly presented to</div>
+            
+            <div class="cert-name" id="certName">John Doe (Demo)</div>
+            
+            <div class="cert-body">
+                for successfully fulfilling the requirements and actively participating in the <br>
+                <span class="cert-highlight">Comprehensive First Aid & Life Safety Training</span><br>
+                <span class="cert-subtext">A human-centric practical workshop focused on emergency response and critical workplace interventions.</span>
+            </div>
+            
+            <table class="cert-signatures">
+                <tr>
+                    <td>
+                        <div class="sig-space"></div>
+                        <div class="sig-line">
+                            <strong>Ajay Kumar Shukla</strong><br>
+                            <span style="font-size: 11px; color: #666;">Founder, Training Humans</span>
+                        </div>
+                    </td>
+                    <td style="width: 10%; font-size: 20px; color: #D90429; padding-bottom: 5px;">✚</td>
+                    <td>
+                        <div class="sig-space"></div>
+                        <div class="sig-line">
+                            <strong>Lead Instructor</strong><br>
+                            <span style="font-size: 11px; color: #666;">Medical Safety Facilitator</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="cert-meta">
+                Date: <span id="certDate">--/--/----</span> | Certificate ID: <span id="certId">TH-FA-2026-0001</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let participants = [];
+    let currentIndex = 0;
+
+    const fileInput = document.getElementById('excelFile');
+    const certNameDisplay = document.getElementById('certName');
+    const certIdDisplay = document.getElementById('certId');
+    const certDateDisplay = document.getElementById('certDate');
+    const navInfo = document.getElementById('navInfo');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    // Automatically calculate current date
+    const today = new Date();
+    const formattedDate = String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
+    certDateDisplay.innerText = formattedDate;
+
+    // Excel Engine parser logic
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rawJson = XLSX.utils.sheet_to_json(worksheet);
+            
+            participants = rawJson.map((row, idx) => {
+                const nameKey = Object.keys(row).find(key => key.toLowerCase().trim() === 'name');
+                return {
+                    name: nameKey ? row[nameKey] : `Participant ${idx + 1}`,
+                    id: `TH-FA-2026-${String(idx + 1).padStart(4, '0')}`
+                };
+            });
+
+            if(participants.length > 0) {
+                currentIndex = 0;
+                updateCertificateView();
+            } else {
+                alert("Could not process file. Ensure your column header is named exactly 'Name'.");
+            }
+        };
+        reader.readAsBinaryString(file);
+    });
+
+    function updateCertificateView() {
+        if(participants.length === 0) return;
+        const person = participants[currentIndex];
+        certNameDisplay.innerText = person.name;
+        certIdDisplay.innerText = person.id;
+        navInfo.innerText = `Record ${currentIndex + 1} of ${participants.length}`;
+        btnPrev.disabled = (currentIndex === 0);
+        btnNext.disabled = (currentIndex === participants.length - 1);
+    }
+
+    btnPrev.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; updateCertificateView(); } });
+    btnNext.addEventListener('click', () => { if (currentIndex < participants.length - 1) { currentIndex++; updateCertificateView(); } });
+</script>
+
+</body>
+</html>
