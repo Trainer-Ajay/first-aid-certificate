@@ -28,12 +28,15 @@
         .certificate-frame { width: 800px; height: 560px; padding: 40px; border: 6px solid #2B3E50; background-color: #ffffff; position: relative; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); flex-shrink: 0; }
         .inner-accent-border { position: absolute; top: 8px; bottom: 8px; left: 8px; right: 8px; border: 2px solid #F19E20; pointer-events: none; }
         
-        /* Top Left Plus Symbol Only */
-        .top-left-plus { position: absolute; top: 25px; left: 25px; font-size: 38px; color: #D90429; font-weight: bold; line-height: 1; }
+        /* NEW SYMBOL AND HEADER POSITIONING */
+        .header-content { display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 15px; position: relative; left: -10px; /* Counteracts symbol width for true center */ }
+        .central-plus-symbol { font-size: 48px; color: #D90429; font-weight: bold; line-height: 1; margin-right: 15px; display: inline-block; position: relative; top: -3px; }
+        .brand-text-block { display: flex; flex-direction: column; text-align: left; }
+
+        .cert-brand { font-size: 32px; font-weight: bold; color: #2B3E50; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+        .cert-tagline { font-size: 12px; color: #555; letter-spacing: 0.5px; font-weight: 500; }
         
-        .cert-brand { font-size: 32px; font-weight: bold; color: #2B3E50; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; margin-top: 10px; }
-        .cert-tagline { font-size: 12px; color: #555; letter-spacing: 0.5px; margin-bottom: 25px; font-weight: 500; }
-        .cert-title { font-size: 34px; font-weight: 800; color: #2B3E50; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .cert-title { font-size: 34px; font-weight: 800; color: #2B3E50; text-transform: uppercase; margin-top: 10px; margin-bottom: 10px; letter-spacing: 1px; }
         .cert-presentation { font-size: 16px; font-style: italic; color: #666; margin-bottom: 15px; }
         .cert-name { font-size: 34px; font-weight: bold; color: #2B3E50; border-bottom: 2px solid #F19E20; display: inline-block; padding-bottom: 5px; margin-bottom: 25px; font-family: Georgia, serif; min-width: 320px; }
         .cert-body { font-size: 15px; color: #333; line-height: 1.6; max-width: 620px; margin: 0 auto 20px auto; }
@@ -45,9 +48,9 @@
         .cert-signatures td { width: 38%; text-align: center; color: #333; vertical-align: bottom; }
         .cert-signatures td.center-logo-space { width: 24%; text-align: center; vertical-align: middle; padding-bottom: 0; }
         
-        /* Circular Brand Logo Placeholder at Bottom Center */
-        .bottom-brand-logo { width: 75px; height: 75px; border-radius: 50%; border: 2px solid #2B3E50; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; margin: 0 auto; overflow: hidden; }
-        .bottom-brand-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* CIRCULAR LOGO: STYLED FOR REAL LOGO, WITH FALLBACKS */
+        .bottom-brand-logo { width: 75px; height: 75px; border-radius: 50%; border: 2px solid #2B3E50; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; margin: 0 auto; overflow: hidden; padding: 2px; }
+        .bottom-brand-logo img { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 50%; }
         
         .sig-line { border-top: 1px solid #aaa; width: 180px; margin: 0 auto; padding-top: 5px; }
         .sig-space { height: 45px; }
@@ -86,10 +89,13 @@
         <div class="certificate-frame">
             <div class="inner-accent-border"></div>
             
-            <div class="top-left-plus">✚</div>
-            
-            <div class="cert-brand">Training Humans</div>
-            <div class="cert-tagline">Discover Potential. Drive Results.</div>
+            <div class="header-content">
+                <span class="central-plus-symbol">✚</span>
+                <div class="brand-text-block">
+                    <span class="cert-brand">Training Humans</span>
+                    <span class="cert-tagline">Discover Potential. Drive Results.</span>
+                </div>
+            </div>
             
             <div class="cert-title">Certificate of Completion</div>
             <div class="cert-presentation">This is proudly presented to</div>
@@ -113,7 +119,7 @@
                     </td>
                     <td class="center-logo-space">
                         <div class="bottom-brand-logo">
-                            <img src="logo.jpg" alt="TH Logo" onerror="this.src='logo.jpeg'; this.onerror=function(){this.src='logo.png'; this.onerror=function(){this.style.display='none'; this.parentNode.innerText='TH';}};">
+                            <img src="logo.jpg" alt="TH Logo" onerror="this.src='logo.png'; this.onerror=function(){this.src='logo.jpeg'; this.onerror=function(){this.style.display='none'; this.parentNode.innerText='TH';}};">
                         </div>
                     </td>
                     <td>
